@@ -22,4 +22,8 @@ public class Professor {
 
     private String cpf;
 
+    // Endereco textual; em proxima etapa sera enriquecido com ViaCEP.
+    private String endereco;
+
+
 }
