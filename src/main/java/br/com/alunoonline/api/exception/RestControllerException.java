@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -24,7 +25,7 @@ public class RestControllerException {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
-        
+
         List<String> validationErrors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -50,7 +51,7 @@ public class RestControllerException {
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(
             ConstraintViolationException ex,
             HttpServletRequest request) {
-        
+
         List<String> validationErrors = ex.getConstraintViolations()
                 .stream()
                 .map(ConstraintViolation::getMessage)
@@ -65,6 +66,30 @@ public class RestControllerException {
                 .error("Bad Request")
                 .message("Erro de validação de constraints")
                 .validationErrors(validationErrors)
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ErrorResponse> handlePropertyReferenceException(
+            PropertyReferenceException ex,
+            HttpServletRequest request) {
+
+        String mensagem = String.format(
+                "Campo de ordenacao invalido: '%s'. Use um campo existente da entidade.",
+                ex.getPropertyName());
+
+        log.warn("Ordenação inválida na requisição [{} {}]. Campo: {}",
+                request.getMethod(), request.getRequestURI(), ex.getPropertyName());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(mensagem)
+                .validationErrors(List.of(mensagem))
                 .path(request.getRequestURI())
                 .build();
 
@@ -98,7 +123,7 @@ public class RestControllerException {
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex,
             HttpServletRequest request) {
-        
+
         log.error("Erro interno no servidor na requisição [{} {}]",
                 request.getMethod(), request.getRequestURI(), ex);
 

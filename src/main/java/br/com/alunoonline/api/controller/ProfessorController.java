@@ -5,6 +5,12 @@ import br.com.alunoonline.api.dto.professor.ProfessorResponseDTO;
 import br.com.alunoonline.api.dto.professor.ProfessorDetailsDTO;
 import br.com.alunoonline.api.service.ProfessorService;
 import br.com.alunoonline.api.util.CpfUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +50,22 @@ public class ProfessorController {
     // Lista professores de forma paginada para evitar respostas muito grandes.
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "Listar professores com paginacao",
+            description = "Use sort no formato campo,direcao. Ex.: sort=nomeCompleto,asc. " +
+                    "Nao use formato JSON como [\"nomeCompleto\"]."
+    )
+    @Parameters({
+            @Parameter(name = "page", in = ParameterIn.QUERY, description = "Numero da pagina (inicia em 0)", example = "0"),
+            @Parameter(name = "size", in = ParameterIn.QUERY, description = "Quantidade de itens por pagina", example = "10"),
+            @Parameter(
+                    name = "sort",
+                    in = ParameterIn.QUERY,
+                    description = "Ordenacao no formato campo,direcao. Pode repetir o parametro para multiplos campos. " +
+                            "Exemplos: sort=nomeCompleto,asc ou sort=nomeCompleto,asc&sort=email,desc",
+                    array = @ArraySchema(schema = @Schema(type = "string", example = "nomeCompleto,asc"))
+            )
+    })
     public Page<ProfessorResponseDTO> listarProfessores(
             @PageableDefault(page = 0, size = 10, sort = "nomeCompleto") Pageable pageable) {
 
