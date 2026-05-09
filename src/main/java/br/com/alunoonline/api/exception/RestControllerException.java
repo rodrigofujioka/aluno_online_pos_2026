@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
-public class RestrControllerException {
+public class RestControllerException {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
@@ -30,7 +31,8 @@ public class RestrControllerException {
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
 
-        log.warn("Erro de validação na requisição: {}", validationErrors);
+        log.warn("Erro de validação na requisição [{} {}]. Total de erros: {} Detalhes: {}",
+                request.getMethod(), request.getRequestURI(), validationErrors.size(), validationErrors);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -54,7 +56,8 @@ public class RestrControllerException {
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.toList());
 
-        log.warn("Violação de constraints na requisição: {}", validationErrors);
+        log.warn("Violação de constraints na requisição [{} {}]. Total de erros: {} Detalhes: {}",
+                request.getMethod(), request.getRequestURI(), validationErrors.size(), validationErrors);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -68,12 +71,36 @@ public class RestrControllerException {
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(
+            ResponseStatusException ex,
+            HttpServletRequest request) {
+
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+        String mensagem = ex.getReason() != null ? ex.getReason() : "Erro na requisição";
+
+        log.warn("Erro de negócio na requisição [{} {}]. Status: {} Mensagem: {}",
+                request.getMethod(), request.getRequestURI(), status.value(), mensagem);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(mensagem)
+                .validationErrors(null)
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex,
             HttpServletRequest request) {
         
-        log.error("Erro interno no servidor: ", ex);
+        log.error("Erro interno no servidor na requisição [{} {}]",
+                request.getMethod(), request.getRequestURI(), ex);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
