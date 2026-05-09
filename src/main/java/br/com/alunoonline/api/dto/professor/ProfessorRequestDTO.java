@@ -3,6 +3,7 @@ package br.com.alunoonline.api.dto.professor;
 import br.com.alunoonline.api.validation.nome.NomeSemPalavrao;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +31,12 @@ public class ProfessorRequestDTO {
     @NotBlank(message = "CPF é obrigatório")
     private String cpf;
 
-    // Endereco livre por enquanto; sera enriquecido depois com ViaCEP.
+    // CEP usado para consulta automatica de endereco no ViaCEP.
+    @NotBlank(message = "CEP é obrigatório")
+    @Pattern(regexp = "^\\d{5}-?\\d{3}$", message = "CEP inválido. Use o formato 00000-000")
+    private String cep;
+
+    // Endereco final preenchido pela consulta no ViaCEP.
     private String endereco;
 }
 

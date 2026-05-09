@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+        ============================================================
+        CONFIGURAÇÃO EDUCACIONAL DO LOGBACK COM ROLLING FILE APPENDER
+        ============================================================
+
+        Este arquivo configura como os logs são gerados na aplicação.
+        O Logback é o framework padrão de logging do Spring Boot.
+
+        Características principais:
+        - Console Log: Exibe logs no console durante desenvolvimento
+        - File Appender: Salva logs em arquivos no disco
+        - Rolling Policy: Rotaciona automaticamente os arquivos diariamente
+        - Retention Policy: Mantém apenas os últimos 30 dias de logs
+    -->
+
+    <!-- Propriedade para o diretório de logs -->
+    <property name="LOG_DIR" value="${user.home}/logs"/>
+    <property name="LOG_FILE_NAME" value="application"/>
+
+    <!-- ============================================================ -->
+    <!-- APPENDER 1: CONSOLE (para exibir no console durante execução) -->
+    <!-- ============================================================ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!--
+                Padrão de formatação dos logs:
+                %d{HH:mm:ss.SSS} = Hora com milissegundos
+                %-5level = Nível do log (INFO, ERROR, etc) - com 5 caracteres de largura
+                %logger{36} = Nome da classe do log (máximo 36 caracteres)
+                %msg = Mensagem do log
+                %n = Nova linha
+            -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ====================================================================== -->
+    <!-- APPENDER 2: FILE WITH ROLLING POLICY (rotação diária com limpeza) -->
+    <!-- ====================================================================== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- Arquivo de log atual -->
+        <file>${LOG_DIR}/${LOG_FILE_NAME}.log</file>
+
+        <!-- Padrão de formatação igual ao console -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+
+        <!--
+            ============================================================
+            ROLLING POLICY: Define como e quando fazer a rotação dos arquivos
+            ============================================================
+        -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+
+            <!--
+                Padrão de nome dos arquivos de backup (quando são rotacionados):
+                - %d{yyyy-MM-dd} = Data no formato yyyy-MM-dd
+                - %i = Número sequencial (0, 1, 2...) se tiver múltiplos arquivos no mesmo dia
+
+                Exemplo de arquivos gerados:
+                - application.log (arquivo atual)
+                - application-2026-05-08.0.log (primeiro arquivo do dia 08/05)
+                - application-2026-05-08.1.log (segundo arquivo do dia 08/05)
+                - application-2026-05-09.0.log (arquivo do dia 09/05)
+            -->
+            <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+            <!--
+                Faz a rotação quando o arquivo atinge 10MB
+                Útil para evitar arquivos muito grandes
+            -->
+            <maxFileSize>10MB</maxFileSize>
+
+            <!--
+                Política de retenção: Mantém apenas os logs dos últimos 30 dias
+                Após 30 dias, os arquivos antigos são automaticamente deletados
+            -->
+            <maxHistory>30</maxHistory>
+
+            <!--
+                Tamanho máximo total de todos os arquivos de log
+                Se ultrapassar 500MB, os arquivos mais antigos são deletados
+            -->
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+        ============================================================
+        APPENDER 3: ARQUIVO COM NÍVEL WARNING (apenas erros importantes)
+        ============================================================
+        Cria um arquivo separado apenas com WARNING e ERROR
+        Útil para monitoramento rápido de problemas
+    -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${LOG_FILE_NAME}-errors.log</file>
+
+        <!-- Filter: apenas logs com nível WARNING ou ERROR -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf8</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${LOG_FILE_NAME}-errors-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>200MB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!--
+        ============================================================
+        CONFIGURAÇÃO DE LOGGERS
+        ============================================================
+    -->
+
+    <!-- Logger específico para a aplicação (configurable level) -->
+    <logger name="br.com.alunoonline" level="INFO"/>
+
+    <!-- Logger para SQL (geralmente é silencioso em produção) -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+
+    <!-- Logger para parâmetros SQL -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
+
+    <!--
+        ============================================================
+        ROOT LOGGER: Configuração padrão para toda aplicação
+        ============================================================
+        - level: Nível mínimo de log (DEBUG, INFO, WARN, ERROR)
+        - appender-ref: Quais appenders usar
+    -->
+    <root level="INFO">
+        <!-- Exibir no console -->
+        <appender-ref ref="CONSOLE"/>
+
+        <!-- Salvar em arquivo -->
+        <appender-ref ref="FILE"/>
+
+        <!-- Salvar erros em arquivo separado -->
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+    <!--
+        ============================================================
+        PERFIS DO SPRING (profiles)
+        ============================================================
+    -->
+
+    <!-- Perfil de desenvolvimento: mais detalhado -->
+    <springProfile name="dev">
+        <logger name="br.com.alunoonline" level="DEBUG"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <!-- Mostra as queries SQL em desenvolvimento -->
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+    </springProfile>
+
+    <!-- Perfil de produção: menos verboso -->
+    <springProfile name="prod">
+        <root level="WARN">
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>
+
