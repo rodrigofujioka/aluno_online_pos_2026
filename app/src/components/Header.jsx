@@ -16,7 +16,7 @@ export default function Header({ isDark, onToggleTheme }) {
             Aluno Online — páginas separadas por assunto
           </h1>
           <p className="max-w-3xl text-base leading-7 text-blue-100/90 md:text-lg">
-            Conteúdo simplificado e enumerado para estudo dos alunos, com exemplos reais vistos em sala de aula e links para o código do projeto.
+            Conteúdo simplificado e enumerado para estudo , com exemplos reais vistos em sala de aula e links para o código do projeto.
           </p>
           </div>
         </div>
