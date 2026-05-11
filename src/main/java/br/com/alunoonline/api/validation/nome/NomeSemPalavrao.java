@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NomeSemPalavrao {
 
-    String message() default "{professor.nome.palavrao}";
+    String message() default "Não é permitido palavrâo no nome do prof";
 
     Class<?>[] groups() default {};
 

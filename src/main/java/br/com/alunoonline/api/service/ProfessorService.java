@@ -42,8 +42,10 @@ public class ProfessorService {
         professorRequestDTO.setEndereco(enderecoViaCep);
 
         // Converte o DTO recebido para entidade antes de persistir.
-        Professor professor = modelMapper.map(professorRequestDTO, Professor.class);
-        Professor professorSalvo = professorRepository.save(professor);
+        Professor professor = modelMapper
+                .map(professorRequestDTO, Professor.class);
+        Professor professorSalvo =
+                professorRepository.save(professor);
 
         log.info("Professor persistido com sucesso. ID: {} Email: {}",
                 professorSalvo.getId(), professorSalvo.getEmail());
@@ -57,8 +59,10 @@ public class ProfessorService {
                 pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
 
         // Mapeia cada entidade da pagina para DTO de resposta.
-        Page<ProfessorResponseDTO> professores = professorRepository.findAll(pageable)
-                .map(professor -> modelMapper.map(professor, ProfessorResponseDTO.class));
+        Page<ProfessorResponseDTO> professores =
+                professorRepository.findAll(pageable)
+                .map(professor ->
+                        modelMapper.map(professor, ProfessorResponseDTO.class));
 
         log.info("Consulta paginada de professores finalizada. Página atual: {} Total de elementos: {} Total de páginas: {} Elementos retornados: {}",
                 professores.getNumber(), professores.getTotalElements(), professores.getTotalPages(),

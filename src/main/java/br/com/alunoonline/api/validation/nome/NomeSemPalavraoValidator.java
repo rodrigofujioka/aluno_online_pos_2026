@@ -7,7 +7,8 @@ import java.text.Normalizer;
 import java.util.Set;
 
 // Validador que impede nomes com termos ofensivos definidos em lista local.
-public class NomeSemPalavraoValidator implements ConstraintValidator<NomeSemPalavrao, String> {
+public class NomeSemPalavraoValidator
+        implements ConstraintValidator<NomeSemPalavrao, String> {
 
     private static final Set<String> PALAVROES = Set.of(
             "palavrao",
