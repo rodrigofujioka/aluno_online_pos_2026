@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.br.CPF;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,7 +23,7 @@ public class Aluno {
     @Size (min = 3, max = 100, message = "Nome Completo deve ter entre 3 e 100 caracteres")
     private String nomeCompleto;
 
-    @CPF
+    //@CPF
     private String cpf;
 
     @Email

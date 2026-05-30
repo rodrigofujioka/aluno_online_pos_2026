@@ -22,6 +22,12 @@ public class AlunoController {
 
     private final AlunoService alunoService;
 
+    @PostMapping("/carga")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void cargaAluno(){
+        alunoService.cargaAluno();
+    }
+
     @CacheEvict(value = "LISTA_ALUNOS",allEntries = true)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

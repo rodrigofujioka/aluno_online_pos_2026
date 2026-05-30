@@ -3,13 +3,16 @@ package br.com.alunoonline.api.service;
 import br.com.alunoonline.api.model.Aluno;
 import br.com.alunoonline.api.repository.AlunoRepository;
 import br.com.alunoonline.api.util.CpfUtils;
+import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
@@ -18,6 +21,24 @@ import java.util.Optional;
 public class AlunoService {
 
     private final AlunoRepository alunoRepository;
+
+    public void cargaAluno(){
+
+        int BATCH_SIZE = 10000;
+        Faker faker
+                = new Faker(new Locale("pt", "BR"));
+
+        List<Aluno> listaAluno = new ArrayList<>();
+        for(int contador=0; contador<BATCH_SIZE; contador++){
+            Aluno aluno = new Aluno();
+            aluno.setNomeCompleto(faker.name().fullName());
+            aluno.setEmail(faker.internet().emailAddress());
+            listaAluno.add(aluno);
+
+        }
+
+        alunoRepository.saveAll(listaAluno);
+    }
 
     public Optional<Aluno> buscarPorCpf(String cpf) {
         log.info("Iniciando busca de aluno por CPF: {}", CpfUtils.formatCpf(cpf));
