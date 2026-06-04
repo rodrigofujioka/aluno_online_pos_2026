@@ -79,7 +79,10 @@ public class AlunoController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void atualizarAlunoPorId(@Valid @RequestBody Aluno aluno, @PathVariable Long id) {
+    public void atualizarAlunoPorId(@Valid @RequestBody Aluno aluno,
+                                    @PathVariable Long id,
+                                    String pai,
+                                    String mae) {
         log.info("Recebida requisição para atualizar aluno. ID: {} Novo email: {} Novo CPF: {}",
                 id, aluno.getEmail(), CpfUtils.formatCpf(aluno.getCpf()));
         alunoService.atualizarAlunoPorId(id, aluno);
