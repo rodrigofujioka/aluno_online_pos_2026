@@ -160,4 +160,3 @@ class ProfessorServiceTest {
         assertEquals("CEP não encontrado no ViaCEP", exception.getReason());
     }
 }
-

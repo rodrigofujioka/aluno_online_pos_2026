@@ -22,6 +22,12 @@ public class AlunoController {
 
     private final AlunoService alunoService;
 
+    @PostMapping("/carga")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void cargaAluno(){
+        alunoService.cargaAluno();
+    }
+
     @CacheEvict(value = "LISTA_ALUNOS",allEntries = true)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -73,7 +79,10 @@ public class AlunoController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void atualizarAlunoPorId(@Valid @RequestBody Aluno aluno, @PathVariable Long id) {
+    public void atualizarAlunoPorId(@Valid @RequestBody Aluno aluno,
+                                    @PathVariable Long id,
+                                    String pai,
+                                    String mae) {
         log.info("Recebida requisição para atualizar aluno. ID: {} Novo email: {} Novo CPF: {}",
                 id, aluno.getEmail(), CpfUtils.formatCpf(aluno.getCpf()));
         alunoService.atualizarAlunoPorId(id, aluno);

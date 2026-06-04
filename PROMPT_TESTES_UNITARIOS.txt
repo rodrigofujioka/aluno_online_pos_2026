@@ -1,0 +1,57 @@
+# PROMPT PARA GERAÇÃO DE TESTES UNITÁRIOS (GitHub Copilot)
+
+## Como Usar
+Copie o código da classe e cole abaixo. O nome da classe será extraído automaticamente do código.
+
+---
+
+## Prompt Otimizado para Copilot
+
+```
+// Gerar testes unitários JUnit 5 + Mockito para a classe abaixo
+// Requisitos:
+// - Testar todos os métodos públicos
+// - Cobrir: sucesso, exceções, valores nulos/borda
+// - Usar @BeforeEach, @Mock, @InjectMocks
+// - Nomenclatura: should[Expected]When[State]
+// - Assertions claras e descritivas
+
+[Cole aqui o código da classe]
+```
+
+---
+
+## Exemplo Prático
+
+```
+// Gerar testes unitários JUnit 5 + Mockito para a classe abaixo
+// Requisitos:
+// - Testar todos os métodos públicos
+// - Cobrir: sucesso, exceções, valores nulos/borda
+// - Usar @BeforeEach, @Mock, @InjectMocks
+// - Nomenclatura: should[Expected]When[State]
+// - Assertions claras e descritivas
+
+[Cole aqui o código do AlunoService]
+```
+
+---
+
+## Checklist de Cobertura
+
+- [ ] Todos os métodos públicos
+- [ ] Branches condicionais
+- [ ] Exceções esperadas
+- [ ] Valores nulos/vazios
+- [ ] Valores limites
+- [ ] Mocks de dependências
+- [ ] Estados de erro/sucesso
+
+---
+
+## Dicas por Tipo de Classe
+
+- **Controller**: Endpoints, status HTTP, response body
+- **Service**: Lógica de negócio, validações, integrações
+- **Repository**: Queries, filtros, CRUD
+- **Utilitária**: Métodos estáticos, funções puras
